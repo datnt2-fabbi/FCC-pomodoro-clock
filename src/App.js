@@ -12,10 +12,18 @@ class App extends React.Component {
 
     this.pomodoroStarted = false;
     this.isPaused = false;
+    this.breakStarted = false;
     this.url = "https://goo.gl/65cBl1";
     this.audio = new Audio(this.url);
   }
 
+  componentDidUpdate(){
+    if(this.state.defaultTime === 0) {
+      this.stopTimer(this.timer)
+    }
+    // this.startBreak();
+
+  }
   calculateTime = (time) => {
     return `${Math.floor(time/60)} : ${time % 60 > 9 ? '' + time%60 : '0' + time%60}`
   }
@@ -29,10 +37,6 @@ class App extends React.Component {
       console.log(this.timer);
       this.pomodoroStarted = !this.pomodoroStarted
     }
-
-    if(this.state.defaultTime === 0) {
-      clearInterval(this.stopTimer(this.timer))
-    }
   }
 
    stopTimer = (timer) => {
@@ -45,9 +49,7 @@ class App extends React.Component {
     
     if(this.pomodoroStarted){
       this.isPaused = true;
-      // console.log('state cu: ', this.state)
       this.setState(this.state);
-      // console.log('state moi: ', this.state)
       console.log(this.isPaused)
       this.stopTimer(this.timer)
     }
@@ -57,17 +59,32 @@ class App extends React.Component {
     if(this.pomodoroStarted) {
       this.isPaused = false;
       this.setState(this.state);
-      this.timer = setInterval(() => {
-        this.setState({
-          defaultTime: this.state.defaultTime - 1})
-      }, 1000)
-    }
-    if(this.state.defaultTime === 0) {
-      clearInterval(this.stopTimer(this.timer))
+
+      if(!this.breakStarted) {
+        this.timer = setInterval(() => {
+          this.setState({
+            defaultTime: this.state.defaultTime - 1})
+        }, 1000)
+      }
+
+      if(!this.breakStarted) {
+        this.breakTimer = setInterval(() => {
+          this.setState({
+            breakTime: this.state.breakTime - 1})
+        }, 1000)
+      }      
     }
   }
   handleReset = () => {
-
+    console.log('Hello');
+    this.setState({
+      defaultTime: 1500,
+      breakTime: 300
+    });
+    console.log(this.state)
+    this.pomodoroStarted = false;
+    this.isPaused = false;
+    
   }
 
   increaseTime = () => {
@@ -106,6 +123,13 @@ class App extends React.Component {
     }
   }
 
+  startBreak = () => {
+    this.breakTimer = this.breakTimer = setInterval(() => {
+      this.setState({
+        breakTime: this.state.breakTime - 1})
+    }, 1000)
+  }
+
   render() {
     if(this.state.defaultTime === 0) {
       this.audio.play();
@@ -125,6 +149,7 @@ class App extends React.Component {
           handleStart={this.handleStart}
           condition = {this.isPaused ? 'Resume' : 'Pause'}
           pausedBtn = {this.isPaused ? this.handleResume : this.handlePause}
+          handleReset = {this.handleReset}
          />
       </div>
     );

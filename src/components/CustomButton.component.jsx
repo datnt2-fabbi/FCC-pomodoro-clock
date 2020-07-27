@@ -18,7 +18,12 @@ class CustomButton extends Component {
                     > 
                         {this.props.condition} 
                     </button>
-                    <button className="btn btn-primary"> Reset </button>
+                    <button 
+                        className="btn btn-primary"
+                        onClick={this.props.handleReset}
+                    >
+                        Reset 
+                    </button>
                 </div>
             </div>
          );
