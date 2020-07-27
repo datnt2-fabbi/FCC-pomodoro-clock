@@ -6,12 +6,14 @@ class App extends React.Component {
   constructor(){
     super();
     this.state = {
-      defaultTime: 60,
+      defaultTime: 10,
       breakTime: 300
     };
 
     this.pomodoroStarted = false;
     this.isPaused = false;
+    this.url = "https://goo.gl/65cBl1";
+    this.audio = new Audio(this.url);
   }
 
   calculateTime = (time) => {
@@ -28,31 +30,40 @@ class App extends React.Component {
       this.pomodoroStarted = !this.pomodoroStarted
     }
 
-    // if (!this.defaultTime) {
-    //   this.defaultTime = this.state.defaultTime;
-    //   this.breakTime = this.state.breakTime;
-    // }
+    if(this.state.defaultTime === 0) {
+      clearInterval(this.stopTimer(this.timer))
+    }
   }
 
-  //  stopTimer = (timer) => {
-  //    clearInterval(timer)
-  //    timer = null
-  //  }
+   stopTimer = (timer) => {
+     clearInterval(timer)
+     timer = null
+   }
   handlePause = () => {
+    console.log('Chay ma.')
+    console.log(this.isPaused);
+    
     if(this.pomodoroStarted){
       this.isPaused = true;
-      clearInterval(this.timer)
+      // console.log('state cu: ', this.state)
+      this.setState(this.state);
+      // console.log('state moi: ', this.state)
+      console.log(this.isPaused)
+      this.stopTimer(this.timer)
     }
   }
 
   handleResume = () => {
     if(this.pomodoroStarted) {
       this.isPaused = false;
-      
+      this.setState(this.state);
       this.timer = setInterval(() => {
         this.setState({
           defaultTime: this.state.defaultTime - 1})
       }, 1000)
+    }
+    if(this.state.defaultTime === 0) {
+      clearInterval(this.stopTimer(this.timer))
     }
   }
   handleReset = () => {
@@ -96,6 +107,9 @@ class App extends React.Component {
   }
 
   render() {
+    if(this.state.defaultTime === 0) {
+      this.audio.play();
+    }
     return (
       <div className="App container text-center">
         <h1> Pomodoro Clock</h1>
