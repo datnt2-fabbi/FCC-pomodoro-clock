@@ -7,7 +7,7 @@ class App extends React.Component {
     super();
     this.state = {
       defaultTime: 10,
-      breakTime: 300
+      breakTime: 10
     };
 
     this.pomodoroStarted = false;
@@ -15,16 +15,28 @@ class App extends React.Component {
     this.breakStarted = false;
     this.url = "https://goo.gl/65cBl1";
     this.audio = new Audio(this.url);
+    this.isWork = false;
+    this.isBreak = false;
   }
 
   componentDidUpdate(){
     if(this.state.defaultTime === 0) {
+      this.audio.play();
+
       this.stopTimer(this.timer)
+      if(!this.breakStarted){
+        this.startBreak();
+      }
     }
+
+    if(this.state.breakTime === 0) {
+      this.stopTimer(this.breakTimer)
+    }
+    
     // this.startBreak();
 
   }
-  calculateTime = (time) => {
+  calculateTime =   (time) => {
     return `${Math.floor(time/60)} : ${time % 60 > 9 ? '' + time%60 : '0' + time%60}`
   }
 
@@ -33,7 +45,8 @@ class App extends React.Component {
       this.timer = setInterval(() => {
         this.setState({
           defaultTime: this.state.defaultTime - 1})
-      }, 1000)
+        }, 1000)
+      
       console.log(this.timer);
       this.pomodoroStarted = !this.pomodoroStarted
     }
@@ -50,8 +63,14 @@ class App extends React.Component {
     if(this.pomodoroStarted){
       this.isPaused = true;
       this.setState(this.state);
+      if(!this.breakStarted){
+        this.stopTimer(this.timer)
+      }
+      if(this.breakStarted){
+        this.stopTimer(this.breakTimer)
+      }
       console.log(this.isPaused)
-      this.stopTimer(this.timer)
+      
     }
   }
 
@@ -67,7 +86,7 @@ class App extends React.Component {
         }, 1000)
       }
 
-      if(!this.breakStarted) {
+      if(this.breakStarted) {
         this.breakTimer = setInterval(() => {
           this.setState({
             breakTime: this.state.breakTime - 1})
@@ -124,7 +143,7 @@ class App extends React.Component {
   }
 
   startBreak = () => {
-    this.breakTimer = this.breakTimer = setInterval(() => {
+    this.breakTimer = setInterval(() => {
       this.setState({
         breakTime: this.state.breakTime - 1})
     }, 1000)
